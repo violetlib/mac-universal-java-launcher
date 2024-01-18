@@ -29,8 +29,17 @@
 #include "UnixSysInfo.h"
 #include "FileUtils.h"
 #include "ErrorHandling.h"
+#include <sys/utsname.h>
 
 namespace SysInfo {
+
+tstring getArch() {
+    struct utsname n;
+    if (uname(&n) == 0) {
+        return tstring(n.machine);
+    }
+    return tstring();
+}
 
 tstring getRealPath(const std::vector<char>& in) {
     std::vector<char> out(PATH_MAX);

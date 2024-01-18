@@ -54,7 +54,19 @@ void initJvmLauncher() {
     const tstring appDirPath = FileUtils::mkpath() << appImageRoot
             << _T("Contents/app");
 
+    const tstring frameworksDirPath = FileUtils::mkpath() << appImageRoot
+                                                          << _T("Contents/Frameworks");
+
     const PackageFile pkgFile = PackageFile::loadFromAppDir(appDirPath);
+
+    tstring arch = SysInfo::getArch();
+    tstring runtimePath = tstrings::equals(arch, _T("arm64")) ? _T("Contents/runtime-arm") : _T("Contents/runtime-x86");
+    tstring fullRuntimePath = FileUtils::mkpath() << appImageRoot
+                                                  << runtimePath;
+    if (!FileUtils::isFileExists(fullRuntimePath)) {
+        fullRuntimePath = FileUtils::mkpath() << appImageRoot
+                                              << _T("Contents/runtime");
+    }
 
     // Create JVM launcher and save in global variable.
     AppLauncher appLauncher = AppLauncher()
@@ -62,10 +74,12 @@ void initJvmLauncher() {
         .addJvmLibName(_T("Contents/Home/lib/libjli.dylib"))
         // add backup - older version such as JDK11 have it in jli sub-dir
         .addJvmLibName(_T("Contents/Home/lib/jli/libjli.dylib"))
+        .addJvmLibName(_T("Contents/Home/jre/lib/jli/libjli.dylib"))
         .setAppDir(appDirPath)
+        .setFrameworksDir(frameworksDirPath)
         .setLibEnvVariableName(_T("DYLD_LIBRARY_PATH"))
-        .setDefaultRuntimePath(FileUtils::mkpath() << appImageRoot
-                << _T("Contents/runtime"));
+        .setFrameworkEnvVariableName(_T("DYLD_FRAMEWORK_PATH"))
+        .setDefaultRuntimePath(fullRuntimePath);
 
     if (!pkgFile.getPackageName().empty()) {
         tstring homeDir;

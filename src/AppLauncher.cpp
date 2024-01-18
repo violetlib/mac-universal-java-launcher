@@ -104,7 +104,25 @@ bool AppLauncher::libEnvVariableContainsAppDir() const {
 #ifdef _WIN32
         tstrings::toLower(appDirPath)
 #else
-        appDirPath
+        frameworksDirPath
+#endif
+    );
+}
+
+bool AppLauncher::frameworkEnvVariableContainsAppDir() const {
+    tstring value = SysInfo::getEnvVariable(std::nothrow,
+                                            frameworkEnvVarName, tstring());
+#ifdef _WIN32
+    value = tstrings::toLower(value);
+#endif
+
+    const tstring_array tokens = tstrings::split(value,
+                                                 tstring(1, FileUtils::pathSeparator));
+    return tokens.end() != std::find(tokens.begin(), tokens.end(),
+#ifdef _WIN32
+            tstrings::toLower(appDirPath)
+#else
+                                     frameworksDirPath
 #endif
     );
 }
@@ -134,7 +152,14 @@ Jvm* AppLauncher::createJvmLauncher() const {
         (*jvm).addEnvVariable(libEnvVarName, SysInfo::getEnvVariable(
                 std::nothrow, libEnvVarName)
                 + FileUtils::pathSeparator
-                + appDirPath);
+                + frameworksDirPath);
+    }
+
+    if (!frameworkEnvVariableContainsAppDir()) {
+        (*jvm).addEnvVariable(frameworkEnvVarName, SysInfo::getEnvVariable(
+                std::nothrow, frameworkEnvVarName)
+                                             + FileUtils::pathSeparator
+                                             + frameworksDirPath);
     }
 
     (*jvm)

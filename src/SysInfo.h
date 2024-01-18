@@ -39,6 +39,8 @@
 // creation should not be added to this namespace.
 //
 namespace SysInfo {
+    tstring getArch();
+
     /**
      * Returns temp dir (for the current user).
      */

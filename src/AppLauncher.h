@@ -55,8 +55,18 @@ public:
         return *this;
     }
 
+    AppLauncher& setFrameworksDir(const tstring& v) {
+        frameworksDirPath = v;
+        return *this;
+    }
+
     AppLauncher& setLibEnvVariableName(const tstring& v) {
         libEnvVarName = v;
+        return *this;
+    }
+
+    AppLauncher& setFrameworkEnvVariableName(const tstring& v) {
+        frameworkEnvVarName = v;
         return *this;
     }
 
@@ -72,6 +82,8 @@ public:
 
     bool libEnvVariableContainsAppDir() const;
 
+    bool frameworkEnvVariableContainsAppDir() const;
+
     Jvm* createJvmLauncher() const;
 
     void launch() const;
@@ -84,7 +96,9 @@ private:
     tstring launcherPath;
     tstring defaultRuntimePath;
     tstring appDirPath;
+    tstring frameworksDirPath;
     tstring libEnvVarName;
+    tstring frameworkEnvVarName;
     tstring imageRoot;
     tstring_array jvmLibNames;
     tstring_array cfgFileLookupDirs;
